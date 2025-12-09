@@ -216,8 +216,8 @@ public class HalfEdge implements MapPoint {
                 var v2 = vertices.get(1);
                 var next = v2.incidentEdge.prev.v;
                 var prev = v1.incidentEdge.next.v;
-                var notSame = v1.incidentEdge.next.v.equals(v2) && v1.incidentEdge.prev.v.equals(v2);
-                if((v1.equals(next) || v2.equals(prev)) && !notSame) {
+                //var notSame = v1.incidentEdge.next.v.equals(v2) && v1.incidentEdge.prev.v.equals(v2);
+                if(!(v1.equals(next) || v2.equals(prev))) {
                     swapped.add(v2);
                     swapped.add(v1);
 
@@ -329,7 +329,7 @@ public class HalfEdge implements MapPoint {
 
         /**
          * Prioritize that The first vertex must be right after the second
-         * This means that the next vertex of v2 should be v1.
+         * This means that the next vertex of v1 should be v2.
          *
          * @param v1
          * @param v2
@@ -642,8 +642,13 @@ public class HalfEdge implements MapPoint {
         e.incidentFace = fMap;
 
         Face fTwin = eTwinNext.incidentFace;
-        fTwin.outerComponent = eTwin;
-        eTwin.incidentFace = fTwin;
+        if(fTwin == null) {
+            eTwin.incidentFace = null;
+        } else {
+            fTwin.outerComponent = eTwin;
+            eTwin.incidentFace = fTwin;
+        }
+
 
     }
 
@@ -726,24 +731,53 @@ public class HalfEdge implements MapPoint {
         }
         D.halfEdges.remove(e);
         D.halfEdges.remove(e.twin);
-        if(e.next.v.equals(v1) && e.prev.v.equals(v1)) {
+        if(e.next.v.equals(v1) && e.prev.v.equals(v1) ) {
             ePrev.next = eNext;
             eNext.prev = ePrev;
 
             v2.incidentEdge = eNext;
+            if(D.adjacentsEdgesTo(v2).size() == 0) {
+                v2.incidentEdge = null;
+            }
             v1.incidentEdge = eNext;
             return;
-        } else if(eTwin.next.v.equals(v2) && eTwin.prev.v.equals(v2)) {
+        } else if (e.next.v.equals(v2) && e.prev.v.equals(v2)) {
+
+            ePrev.next = eNext;
+            eNext.prev = ePrev;
+
+            v2.incidentEdge = eNext;
+
+            v1.incidentEdge = eNext;
+            if(D.adjacentsEdgesTo(v1).size() == 0) {
+                v1.incidentEdge = null;
+            }
+            //v1.incidentEdge = eNext;
+            return;
+
+        }else if(eTwin.next.v.equals(v2) && eTwin.prev.v.equals(v2)) {
             eTwinNext.prev = eTwinPrev;
             eTwinPrev.next = eTwinNext;
 
+
             v1.incidentEdge = eTwinNext;
+            if(D.adjacentsEdgesTo(v1).size() == 0) {
+                v1.incidentEdge = null;
+            }
+
             v2.incidentEdge = eTwinNext;
             return;
         }
 
         ePrev.next = eNext;
+
         eNext.prev = ePrev;
+        //eNext.twin.next = ePrev.twin;
+        //ePrev.twin.prev = eNext.twin;
+
+
+
+
 
         eTwinPrev.next = eTwinNext;
         eTwinNext.prev = eTwinPrev;

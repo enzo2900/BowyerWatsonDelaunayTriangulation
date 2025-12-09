@@ -66,16 +66,17 @@ public class BowyerWatsonDT {
     }
     public static void removeTriangle(Subdivision D, Triangle t) {
 
-        // Récupérer les 3 half-edges du triangle
-        HalfEdge e1 = t.i.incidentEdge;
-        HalfEdge e2 = t.j.incidentEdge;
-        HalfEdge e3 = t.k.incidentEdge;
+        HalfEdge e1 = t.edges.get(0);
+        HalfEdge e2 = t.edges.get(2);
+        HalfEdge e3 = t.edges.get(4);
 
-        // Supprimer les faces
-        var triangles = D.getTriangles();
-        triangles.remove(t);
-        HalfEdge.removeEdge(D,e1.v,e1.next.v);
+        HalfEdge.removeEdge(D,t.edges.get(0).v,e1.next.v);
         HalfEdge.removeEdge(D,e2.v,e2.next.v);
         HalfEdge.removeEdge(D,e3.v,e3.next.v);
+
+        D.removeVertexIfNecessary(e1.v);
+        D.removeVertexIfNecessary(e2.v);
+        D.removeVertexIfNecessary(e3.v);
+
     }
 }

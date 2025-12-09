@@ -1,9 +1,13 @@
 package utility;
 
+import java.util.ArrayList;
+
 public  class Triangle {
     public Vertex i;
     public Vertex j;
     public Vertex k;
+
+    public ArrayList<HalfEdge> edges ;
 
     public int lieOnEdge;
 
@@ -11,6 +15,7 @@ public  class Triangle {
         this.i = i;
         this.j = j;
         this.k = k;
+        edges = new ArrayList<>();
     }
 
     @Override
@@ -27,6 +32,7 @@ public  class Triangle {
         i = new Vertex(p0.x,p0.y);
         j = new Vertex(pFarLeft.x,pFarLeft.y);
         k = new Vertex(pFarRight.x,pFarRight.y);
+        edges = new ArrayList<>();
     }
 
     public Point getMiddlePoint() {

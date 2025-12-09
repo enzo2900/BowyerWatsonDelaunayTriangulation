@@ -311,10 +311,14 @@ public class SubdivisionTest {
         var result = Test2.getVerticesInRightOrder(new Vertex(0,1),new Vertex(0,0));
         var list = result.stream().toList();
 
-        assertSame(list.get(1).incidentEdge.next.v,list.get(0));
-
+        assertSame(list.get(0).incidentEdge.next.v,list.get(1));
+        assertEquals(new Vertex(0,1),list.get(0));
+        assertEquals(new Vertex(0,0),list.get(1));
          result = Test2.getVerticesInRightOrder(new Vertex(1,0),new Vertex(0,0),new Vertex(1,1));
          list = result.stream().toList();
+        assertSame(list.get(0).incidentEdge.next.v,list.get(1));
+        assertEquals(new Vertex(1,0),list.get(1));
+        assertEquals(new Vertex(0,0),list.get(0));
     }
 
     public void completeEdge() {
@@ -339,6 +343,55 @@ public class SubdivisionTest {
         var v = Test2.getVertex(new Vertex(0,0));
         var listEdges = Test2.D.adjacentsEdgesTo(v);
         assertEquals(3,listEdges.size());
+        assertEquals(new Vertex(1,1),listEdges.get(0).twin.v);
+        assertEquals(new Vertex(1,0),listEdges.get(1).twin.v);
+        assertEquals(new Vertex(0,1),listEdges.get(2).twin.v);
+
+        var list2 = Test2.D.adjacentsEdgesTo(Test2.getVertex(new Vertex(1,0)));
+        assertEquals(2,list2.size());
+
+        Test2.removeHalfEdge(new Vertex(0,0),new Vertex(1,0));
+        var list3 = Test2.D.adjacentsEdgesTo(Test2.getVertex(new Vertex(1,0)));
+        assertEquals(1,list3.size());
+        Test2.removeHalfEdge(new Vertex(1,0),new Vertex(1,1));
+        var list4 = Test2.D.adjacentsEdgesTo(Test2.getVertex(new Vertex(1,0)));
+        assertEquals(0,list4.size());
+
+        HalfEdge.SubdivisionBuilder Test3 = HalfEdge.SubdivisionBuilder.builder()
+                .Vertex(new Vertex(0,0))   // V0
+                .Vertex(new Vertex(1,0))   // V1
+                .Vertex(new Vertex(1,1))   // V2
+                .Vertex(new Vertex(0,1))
+                .Vertex(new Vertex(0,0))
+                .addHalfEdge(new Vertex(0,0),new Vertex(1,1));
+
+        assertEquals(3,Test3.D.adjacentsEdgesTo(Test3.getVertex(new Vertex(1,1))).size());
+        Test3.removeHalfEdge(new Vertex(1,1),new Vertex(1,0));
+        assertEquals(2,Test3.D.adjacentsEdgesTo(Test3.getVertex(new Vertex(1,1))).size());
+        Test3.removeHalfEdge(new Vertex(1,1),new Vertex(0,0));
+        assertEquals(1,Test3.D.adjacentsEdgesTo(Test3.getVertex(new Vertex(1,1))).size());
+
+
+    }
+
+
+
+    @Test
+    public void getTriangles() {
+        HalfEdge.SubdivisionBuilder Test2 = HalfEdge.SubdivisionBuilder.builder()
+                .Vertex(new Vertex(0,0))   // V0
+                .Vertex(new Vertex(1,0))   // V1
+                .Vertex(new Vertex(1,1))   // V2
+                .Vertex(new Vertex(0,1))
+                .Vertex(new Vertex(0,0))
+                .addHalfEdge(new Vertex(0,0),new Vertex(1,1));
+
+        var listT = Test2.D.getTriangles();
+        var t1 = listT.get(0);
+        assertEquals(6,t1.edges.size());
+        assertEquals(t1.i,t1.edges.get(0).v);
+        assertEquals(t1.j,t1.edges.get(2).v);
+        assertEquals(t1.k,t1.edges.get(4).v);
     }
 
 }

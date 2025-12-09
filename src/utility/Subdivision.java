@@ -75,14 +75,44 @@ public class Subdivision {
         faces.removeAll(toRemove);
     }
 
+    public ArrayList<HalfEdge> findAllFrom(Face f) {
+        ArrayList<HalfEdge> edges = new ArrayList<>();
+        HalfEdge edge = f.outerComponent;
+        HalfEdge current = edge.next;
+
+        ArrayList<HalfEdge> visited = new ArrayList<>();
+        visited.add(edge);
+        visited.add(edge.twin);
+        edges.add(edge);
+        edges.add(edge.twin);
+        while (current != edge){
+            if(visited.contains(current)) {
+                System.out.println("Incorrect face topology.");
+                break;
+            }
+            visited.add(current);
+            visited.add(current.twin);
+            edges.add(current);
+            edges.add(current.twin);
+            current = current.next;
+
+        }
+        return edges;
+    }
+
     public ArrayList<Triangle> getTriangles() {
         ArrayList<Triangle> triangles = new ArrayList<>();
         for(Face f : faces) {
             if(hasVertex(f.outerComponent.v)) {
-                var list = findWhere(f);
-                if(list.size() == 3 ) {
-                    triangles.add(new Triangle(list.get(0),list.get(1),list.get(2)));
+                var listEdges = findAllFrom(f);
+
+                if( listEdges.size() == 6) {
+                    var t = new Triangle(listEdges.get(0).v,listEdges.get(2).v,listEdges.get(4).v);
+                    t.edges = listEdges;
+                    triangles.add(t);
                 }
+            } else {
+                System.out.println("Face with non existing Vertex.");
             }
         }
         return triangles;
@@ -90,14 +120,34 @@ public class Subdivision {
 
     public ArrayList<HalfEdge> adjacentsEdgesTo(Vertex v) {
         ArrayList<HalfEdge> edges = new ArrayList<>();
+        ArrayList<HalfEdge> visited = new ArrayList<>();
         HalfEdge first = v.incidentEdge;
+
+        if(first == null || !hasEdge(first.v,first.twin.v)) {
+            return edges;
+        }
+        visited.add(first);
+        visited.add(first.twin);
         edges.add(first);
         HalfEdge current = first.twin.next;
         while (current != first) {
-            edges.add(current);
+            if(!visited.contains(current) && ! visited.contains(current.twin)) {
+                visited.add(current);
+                visited.add(current.twin);
+
+                edges.add(current);
+            }
+
+
             current = current.twin.next;
         }
         return edges;
+    }
+
+    public void removeVertexIfNecessary(Vertex v) {
+        if(v.incidentEdge == null) {
+            vertices.remove(v);
+        }
     }
     public ArrayList<Vertex> findAllWhere(Face f) {
         ArrayList<Vertex> vertices1 = new ArrayList<>();

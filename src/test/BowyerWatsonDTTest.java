@@ -1,5 +1,6 @@
 package test;
 
+import core.BowyerWatsonDT;
 import org.junit.jupiter.api.Test;
 import utility.HalfEdge;
 import utility.Subdivision;
@@ -24,6 +25,10 @@ class BowyerWatsonDTTest {
         assertEquals(2,triangles.size());
         assertEquals(new Triangle(new Vertex(0,0),new Vertex(1,0)
                 ,new Vertex(1,1)),triangles.get(0));
+
+
+        BowyerWatsonDT.removeTriangle(Test.D,triangles.get(0));
+        assertEquals(3,Test.D.vertices.size());
 
     }
 }
