@@ -87,6 +87,18 @@ public class Subdivision {
         }
         return triangles;
     }
+
+    public ArrayList<HalfEdge> adjacentsEdgesTo(Vertex v) {
+        ArrayList<HalfEdge> edges = new ArrayList<>();
+        HalfEdge first = v.incidentEdge;
+        edges.add(first);
+        HalfEdge current = first.twin.next;
+        while (current != first) {
+            edges.add(current);
+            current = current.twin.next;
+        }
+        return edges;
+    }
     public ArrayList<Vertex> findAllWhere(Face f) {
         ArrayList<Vertex> vertices1 = new ArrayList<>();
         for(Vertex vertex : vertices) {

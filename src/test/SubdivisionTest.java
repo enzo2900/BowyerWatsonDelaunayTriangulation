@@ -326,4 +326,19 @@ public class SubdivisionTest {
                 .Vertex(new Vertex(0,0));
     }
 
+    @Test
+    public void adjacentEdges() {
+        HalfEdge.SubdivisionBuilder Test2 = HalfEdge.SubdivisionBuilder.builder()
+                .Vertex(new Vertex(0,0))   // V0
+                .Vertex(new Vertex(1,0))   // V1
+                .Vertex(new Vertex(1,1))   // V2
+                .Vertex(new Vertex(0,1))
+                .Vertex(new Vertex(0,0))
+                .addHalfEdge(new Vertex(0,0),new Vertex(1,1));
+
+        var v = Test2.getVertex(new Vertex(0,0));
+        var listEdges = Test2.D.adjacentsEdgesTo(v);
+        assertEquals(3,listEdges.size());
+    }
+
 }

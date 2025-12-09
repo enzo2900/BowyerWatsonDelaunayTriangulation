@@ -352,28 +352,6 @@ public class HalfEdge implements MapPoint {
                     removeHalfEdge(listEdges.get(i).v,listEdges.get(i+1).v);
                 }
             }
-            /*for(Face f : list) {
-                HalfEdge edge = findFrom(f.outerComponent,v1);
-                HalfEdge edgeTwin = edge.twin;
-                HalfEdge edgePrev = edge.prev;
-                HalfEdge edgeTwinPrev = edgePrev.twin;
-                if(D.hasEdge(edge.v,edgeTwin.v)) {
-                    removeHalfEdge(edge.v,edgeTwin.v);
-                }
-                if(D.hasEdge(edgePrev.v,edgeTwinPrev.v)) {
-                    removeHalfEdge(edgePrev.v,edgeTwinPrev.v);
-                }
-            }*/
-            /*HalfEdge edge = v1.incidentEdge;
-            HalfEdge edgeTwin = v1.incidentEdge.twin;
-
-            HalfEdge edgePrev = v1.incidentEdge.prev;
-            HalfEdge edgeTwinPrev = v1.incidentEdge.prev.twin;
-
-            if(D.hasEdge(edgePrev.v,edgeTwinPrev.v)) {
-                removeHalfEdge(edgePrev.v,edgeTwinPrev.v);
-            }*/
-
             D.vertices.remove(v1);
             D.vertexMap.remove(v1);
         }
