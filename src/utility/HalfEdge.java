@@ -216,8 +216,9 @@ public class HalfEdge implements MapPoint {
                 var v2 = vertices.get(1);
                 var next = v2.incidentEdge.prev.v;
                 var prev = v1.incidentEdge.next.v;
-                //var notSame = v1.incidentEdge.next.v.equals(v2) && v1.incidentEdge.prev.v.equals(v2);
-                if(!(v1.equals(next) || v2.equals(prev))) {
+                var SameV2 = v2.incidentEdge.next.v.equals(v1) && v2.incidentEdge.prev.v.equals(v1);
+                var SameV1 = v1.incidentEdge.next.v.equals(v2) && v1.incidentEdge.prev.v.equals(v2);
+                if(!(v1.equals(next) || v2.equals(prev)) || (SameV1 && (!SameV2 && v2.incidentEdge.next.v.equals(v1)))) {
                     swapped.add(v2);
                     swapped.add(v1);
 
@@ -390,7 +391,13 @@ public class HalfEdge implements MapPoint {
 
 
             v1 = vertexList.get(0);
-            insertEdgeNoFace(D,v1,v2);
+            if(v1.incidentEdge == null) {
+                insertInitial(D,v1,v2);
+
+            } else {
+                insertEdgeNoFace(D,v1,v2);
+            }
+
 
             return this;
         }
@@ -544,10 +551,46 @@ public class HalfEdge implements MapPoint {
         D.faces.add(f);
 
     }
-    public static void insertEdgeNoFace(Subdivision D, Vertex v1, Vertex v2) {
+
+    public static HalfEdge insertInitial(Subdivision D, Vertex v1, Vertex v2) {
+
+            HalfEdge e1 = new HalfEdge();
+            HalfEdge e1Twin = new HalfEdge();
+
+            e1.v = v1;
+            e1.twin = e1Twin;
+            e1Twin.v = v2;
+            e1Twin.twin = e1;
+
+            e1.next = e1Twin;
+            e1.prev = e1Twin;
+            e1Twin.next = e1;
+            e1Twin.prev = e1;
+            v1.incidentEdge = e1;
+            v2.incidentEdge = e1Twin;
+            if(!D.vertices.contains(v2)) {
+                D.vertices.add(v2);
+                D.vertexMap.put(v2,new ArrayList<>());
+            }
+        if(!D.vertices.contains(v1)) {
+            D.vertices.add(v1);
+            D.vertexMap.put(v1,new ArrayList<>());
+        }
+        D.halfEdges.add(e1);
+        D.halfEdges.add(e1Twin);
+
+            return e1;
+
+    }
+    public static HalfEdge insertEdgeNoFace(Subdivision D, Vertex v1, Vertex v2) {
         if (v2 == null) {
             System.out.println("V2 est null dans insertDiagonal");
-            return;
+            return null;
+        }
+
+        if(D.adjacentsEdgesTo(v1).size() == 0 && D.adjacentsEdgesTo(v2).size() == 0) {
+
+            return insertInitial(D,v1,v2);
         }
 
         HalfEdge e = new HalfEdge();
@@ -566,7 +609,13 @@ public class HalfEdge implements MapPoint {
         var list = D.vertexMap.get(v1).stream().toList();
         Face fMap = null;
         if(!isCyclic(D,v1.incidentEdge)) {
-            fMap = D.vertexMap.get(v1).get(0);
+            var listMap = D.vertexMap.get(v1);
+            if(listMap.isEmpty()) {
+                fMap = null;
+            }else {
+                fMap = D.vertexMap.get(v1).get(0);
+            }
+
         } else {
             for(Face fMpaList : list) {
                 if(D.isVertexInFace(fMpaList,v2)) {
@@ -584,30 +633,9 @@ public class HalfEdge implements MapPoint {
             ePrev = v1Hf.prev;
             eTwinNext = v1Hf;
         } else {
-            throw new RuntimeException("No same Faces");
+            ePrev = v1.incidentEdge.prev;
+            eTwinNext = v1.incidentEdge;
         }
-        /*if(face != faceV2) {
-            HalfEdge v1Hf =  findFrom(v2.incidentEdge,v1);
-            HalfEdge v2Hf =  findFrom(v1.incidentEdge,v2);
-
-            if(v1Hf != null) {
-                //Same face then
-                 eNext = v2.incidentEdge;
-                 ePrev = v1Hf.prev;
-                 eTwinNext = v1Hf;
-                 eTwinPrev = v2.incidentEdge.prev;
-
-            } else if (v2Hf != null) {
-                // Same face
-
-                eNext = v2Hf;
-                ePrev = v1.incidentEdge.prev;
-                eTwinNext = v1.incidentEdge;
-                eTwinPrev = v2Hf.prev;
-            }
-
-
-        }*/
         e.next = eNext;
         e.prev = ePrev;
 
@@ -624,7 +652,14 @@ public class HalfEdge implements MapPoint {
         v2.incidentEdge = eTwin;
         D.halfEdges.add(e);
         D.halfEdges.add(eTwin);
-        D.vertices.add(v2);
+        if(!D.vertices.contains(v2)) {
+            D.vertices.add(v2);
+        }
+
+        if(fMap == null) {
+            D.vertexMap.put(v2,new ArrayList<>());
+            return e;
+        }
         Face f = new Face();
         var l = D.vertexMap.get(v1);
         var toComplete = D.toComplete.getOrDefault(v1,new ArrayList<>());
@@ -649,7 +684,7 @@ public class HalfEdge implements MapPoint {
             eTwin.incidentFace = fTwin;
         }
 
-
+        return e;
     }
 
     /**
@@ -719,55 +754,80 @@ public class HalfEdge implements MapPoint {
             //v2Hf = v1Hf.twin;
             var edgeFound = D.getEdge(v1,v2);
             e = edgeFound;
-            eTwin = e.twin;
+            //eTwin = e.twin;
             eNext = edgeFound.prev.twin;
             ePrev = edgeFound.prev;
+            //eNext.v = v1;
+
             eTwinNext = edgeFound.next;
             eTwinPrev = edgeFound.twin.prev;
-
-
+            eTwinNext.v = v2;
         } else {
             throw new RuntimeException("No same Faces");
         }
         D.halfEdges.remove(e);
         D.halfEdges.remove(e.twin);
+        boolean oneSided = false;
         if(e.next.v.equals(v1) && e.prev.v.equals(v1) ) {
             ePrev.next = eNext;
             eNext.prev = ePrev;
 
-            v2.incidentEdge = eNext;
+
             if(D.adjacentsEdgesTo(v2).size() == 0) {
                 v2.incidentEdge = null;
+            } else {
+                v2.incidentEdge = eNext;
             }
             v1.incidentEdge = eNext;
-            return;
+            oneSided = true;
         } else if (e.next.v.equals(v2) && e.prev.v.equals(v2)) {
 
-            ePrev.next = eNext;
-            eNext.prev = ePrev;
-
-            v2.incidentEdge = eNext;
-
-            v1.incidentEdge = eNext;
-            if(D.adjacentsEdgesTo(v1).size() == 0) {
-                v1.incidentEdge = null;
-            }
-            //v1.incidentEdge = eNext;
-            return;
-
-        }else if(eTwin.next.v.equals(v2) && eTwin.prev.v.equals(v2)) {
             eTwinNext.prev = eTwinPrev;
             eTwinPrev.next = eTwinNext;
 
 
-            v1.incidentEdge = eTwinNext;
+
             if(D.adjacentsEdgesTo(v1).size() == 0) {
                 v1.incidentEdge = null;
+            } else {
+                v1.incidentEdge = eTwinNext;
             }
 
             v2.incidentEdge = eTwinNext;
-            return;
+            oneSided = true;
+
         }
+        if(eTwin.next.v.equals(v2) && eTwin.prev.v.equals(v2)) {
+            eTwinNext.prev = eTwinPrev;
+            eTwinPrev.next = eTwinNext;
+
+
+
+            if(D.adjacentsEdgesTo(v1).size() == 0) {
+                v2.incidentEdge = null;
+            } else {
+                v2.incidentEdge = eTwinNext;
+            }
+
+            if(!oneSided)
+                v1.incidentEdge = eTwinNext;
+            oneSided = true;
+        } else if(eTwin.next.v.equals(v1) && eTwin.prev.v.equals(v1)) {
+            eNext.prev = ePrev;
+            ePrev.next = eNext;
+
+
+
+            if(D.adjacentsEdgesTo(v2).size() == 0) {
+                v2.incidentEdge = null;
+            } else {
+                v2.incidentEdge = eTwinNext;
+            }
+            if(!oneSided)
+                v1.incidentEdge = eTwinNext;
+            oneSided = true;
+        }
+        if(oneSided) return;
 
         ePrev.next = eNext;
 
@@ -827,6 +887,13 @@ public class HalfEdge implements MapPoint {
             return null;
         }
 
+        if(D.adjacentsEdgesTo(v1).size() == 0) {
+
+            return insertEdgeNoFace(D,v2,v1);
+        } else if(D.adjacentsEdgesTo(v2).size() == 0) {
+            return insertEdgeNoFace(D,v1,v2);
+        }
+
         HalfEdge e = new HalfEdge();
         HalfEdge eTwin = new HalfEdge();
 
@@ -850,30 +917,9 @@ public class HalfEdge implements MapPoint {
             eTwinNext = v1Hf;
             eTwinPrev = v2Hf.prev;
         } else {
-            throw new RuntimeException("No same Faces");
+            System.err.println("No same Faces");
+
         }
-        /*if(face != faceV2) {
-            HalfEdge v1Hf =  findFrom(v2.incidentEdge,v1);
-            HalfEdge v2Hf =  findFrom(v1.incidentEdge,v2);
-
-            if(v1Hf != null) {
-                //Same face then
-                 eNext = v2.incidentEdge;
-                 ePrev = v1Hf.prev;
-                 eTwinNext = v1Hf;
-                 eTwinPrev = v2.incidentEdge.prev;
-
-            } else if (v2Hf != null) {
-                // Same face
-
-                eNext = v2Hf;
-                ePrev = v1.incidentEdge.prev;
-                eTwinNext = v1.incidentEdge;
-                eTwinPrev = v2Hf.prev;
-            }
-
-
-        }*/
         e.next = eNext;
         e.prev = ePrev;
 

@@ -8,6 +8,7 @@ public  class Triangle {
     public Vertex k;
 
     public ArrayList<HalfEdge> edges ;
+    public Face f ;
 
     public int lieOnEdge;
 

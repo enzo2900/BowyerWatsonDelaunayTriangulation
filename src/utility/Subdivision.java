@@ -27,6 +27,7 @@ public class Subdivision {
         vertexMap = new HashMap<>();
         toComplete = new HashMap<>();
     }
+
     public boolean isVertexInFace(Face f, Vertex v) {
         HalfEdge e = f.outerComponent;
         double theLeftOf = GeometryUtility.toTheLeftOf(e.v,e.next.v,v);
@@ -87,7 +88,8 @@ public class Subdivision {
         edges.add(edge.twin);
         while (current != edge){
             if(visited.contains(current)) {
-                System.out.println("Incorrect face topology.");
+                //System.out.println("Incorrect face topology.");
+                new RuntimeException("Incorrect face topology.").printStackTrace();
                 break;
             }
             visited.add(current);
@@ -109,6 +111,7 @@ public class Subdivision {
                 if( listEdges.size() == 6) {
                     var t = new Triangle(listEdges.get(0).v,listEdges.get(2).v,listEdges.get(4).v);
                     t.edges = listEdges;
+                    t.f = f;
                     triangles.add(t);
                 }
             } else {
@@ -118,12 +121,19 @@ public class Subdivision {
         return triangles;
     }
 
+    public void removeFace(Face f) {
+        var list = findWhere(f);
+        for(Vertex v : list) {
+            var map  = vertexMap.get(v);
+            map.remove(f);
+        }
+    }
     public ArrayList<HalfEdge> adjacentsEdgesTo(Vertex v) {
         ArrayList<HalfEdge> edges = new ArrayList<>();
         ArrayList<HalfEdge> visited = new ArrayList<>();
         HalfEdge first = v.incidentEdge;
 
-        if(first == null || !hasEdge(first.v,first.twin.v)) {
+        if(first == null || first.twin == null || !hasEdge(first.v,first.twin.v)) {
             return edges;
         }
         visited.add(first);
@@ -147,6 +157,7 @@ public class Subdivision {
     public void removeVertexIfNecessary(Vertex v) {
         if(v.incidentEdge == null) {
             vertices.remove(v);
+            vertexMap.remove(v);
         }
     }
     public ArrayList<Vertex> findAllWhere(Face f) {

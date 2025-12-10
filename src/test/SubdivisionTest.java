@@ -314,11 +314,24 @@ public class SubdivisionTest {
         assertSame(list.get(0).incidentEdge.next.v,list.get(1));
         assertEquals(new Vertex(0,1),list.get(0));
         assertEquals(new Vertex(0,0),list.get(1));
-         result = Test2.getVerticesInRightOrder(new Vertex(1,0),new Vertex(0,0),new Vertex(1,1));
+         result = Test2.getVerticesInRightOrder(new Vertex(1,0),new Vertex(0,0));
          list = result.stream().toList();
         assertSame(list.get(0).incidentEdge.next.v,list.get(1));
         assertEquals(new Vertex(1,0),list.get(1));
         assertEquals(new Vertex(0,0),list.get(0));
+        Test2.removeHalfEdge(new Vertex(1,1),new Vertex(1,0));
+        result = Test2.getVerticesInRightOrder(new Vertex(0,0),new Vertex(1,0));
+        assertSame(result.get(0).incidentEdge.next.v,result.get(1));
+        assertEquals(new Vertex(0,0),result.get(0));
+        assertEquals(new Vertex(1,0),result.get(1));
+        result = Test2.getVerticesInRightOrder(new Vertex(1,0),new Vertex(0,0));
+        assertSame(result.get(0).incidentEdge.next.v,result.get(1));
+        assertEquals(new Vertex(0,0),result.get(0));
+        assertEquals(new Vertex(1,0),result.get(1));
+        result = Test2.getVerticesInRightOrder(new Vertex(0,1),new Vertex(1,1));
+        assertSame(result.get(0).incidentEdge.next.v,result.get(1));
+        assertEquals(new Vertex(1,1),result.get(0));
+        assertEquals(new Vertex(0,1),result.get(1));
     }
 
     public void completeEdge() {

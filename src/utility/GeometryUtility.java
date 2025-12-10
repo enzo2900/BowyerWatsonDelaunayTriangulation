@@ -12,21 +12,21 @@ public class GeometryUtility {
     public static boolean isInsideCircleD(MapPoint A, MapPoint B, MapPoint C , MapPoint D) {
         double orientation = (B.getX() - A.getX()) * (C.getY() - A.getY()) -
                 (B.getY() - A.getY()) * (C.getX()- A.getX());
-        double det = inCircle((Vertex) A, (Vertex) B, (Vertex) C, (Vertex) D);
+        double det = inCircle( A,  B, C, D);
         if (orientation < 0) det = -det;
 
         return det > 0;
     }
 
-    public static double inCircle(Vertex i, Vertex j, Vertex k, Vertex l) {
-        double xi = i.x;
-        double yi = i.y;
-        double xj = j.x;
-        double yj = j.y;
-        double xk = k.x;
-        double yk = k.y;
-        double xl = l.x;
-        double yl = l.y;
+    public static double inCircle(MapPoint i, MapPoint j, MapPoint k, MapPoint l) {
+        double xi = i.getX();
+        double yi = i.getY();
+        double xj = j.getX();
+        double yj = j.getY();
+        double xk = k.getX();
+        double yk = k.getY();
+        double xl = l.getX();
+        double yl = l.getY();
 
         double a = xi * xi + yi*yi;
         double b = xj * xj + yj* yj;
