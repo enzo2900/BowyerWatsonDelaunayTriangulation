@@ -1,8 +1,11 @@
 package test;
 
 import core.BowyerWatsonDT;
+import core.BowyerWatsonDT2;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import utility.*;
+import utility.graph.Graph2DTopologyBuilder;
 
 import java.util.ArrayList;
 
@@ -76,6 +79,29 @@ class BowyerWatsonDTTest {
         points.add(new Point(5,10));
 
         BowyerWatsonDT.compute(points);
+
+    }
+
+    @Test
+    void compute2() {
+        ArrayList<Point> points = new ArrayList<>();
+        points.add(new Point(0,0));
+        points.add(new Point(10,0));
+        points.add(new Point(5,10));
+
+        var builder = BowyerWatsonDT2.compute(points);
+        Assertions.assertEquals(3, Graph2DTopologyBuilder.numberOfVertices(builder));
+        Assertions.assertEquals(6,Graph2DTopologyBuilder.numberOfEdges(builder));
+
+    }
+
+    @Test
+    public void insideCircleTest() {
+        Assertions.assertTrue(GeometryUtility.isInsideCircleD(new Point(-100,0),
+                new Point(100,0),new Point(0,100),new Point(10,10)));
+        Assertions.assertTrue(GeometryUtility.isInsideCircleD(new Point(0,100),new Point(100,0),new Point(-100,0),new Point(10,10)));
+        Assertions.assertTrue(GeometryUtility.isInsideCircleD(new Point(100,0),
+                new Point(-100,0),new Point(0,100),new Point(10,10)));
 
     }
 }

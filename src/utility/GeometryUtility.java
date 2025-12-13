@@ -9,13 +9,27 @@ public class GeometryUtility {
         return (B.getX() - A.getX()) * (C.getY() - A.getY()) - (B.getY() - A.getY()) * (C.getX() - A.getX());
     }
 
+    public static double similar(MapPoint A, MapPoint B, MapPoint C) {
+        return (B.getX() -A.getX()) * (C.getX() - A.getX()) + (B.getY() - A.getY()) * (C.getY() - A.getY());
+    }
+
     public static boolean isInsideCircleD(MapPoint A, MapPoint B, MapPoint C , MapPoint D) {
         double orientation = (B.getX() - A.getX()) * (C.getY() - A.getY()) -
                 (B.getY() - A.getY()) * (C.getX()- A.getX());
-        double det = inCircle( A,  B, C, D);
+        double ax = A.getX() - D.getX();
+        double ay = A.getY() - D.getY();
+        double bx = B.getX() - D.getX();
+        double by = B.getY() - D.getY();
+        double cx = C.getX() - D.getX();
+        double cy = C.getY() - D.getY();
+
+        double det = (ax*ax + ay*ay)*(bx*cy - cx*by)
+                - (bx*bx + by*by)*(ax*cy - cx*ay)
+                + (cx*cx + cy*cy)*(ax*by - bx*ay);
+       // double det = inCircle( A,  B, C, D);
         if (orientation < 0) det = -det;
 
-        return det > 0;
+        return det >= 0;
     }
 
     public static double inCircle(MapPoint i, MapPoint j, MapPoint k, MapPoint l) {

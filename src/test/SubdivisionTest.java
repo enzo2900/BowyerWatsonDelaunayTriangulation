@@ -279,11 +279,11 @@ public class SubdivisionTest {
                 .Vertex(new Vertex(1,1))
                 .Vertex(new Vertex(0,0));
 
-        assertTrue(HalfEdge.isCyclic(Test.D,Test.D.halfEdges.get(1)));
+        assertTrue(EdgeUtility.isInCycle(Test.D.halfEdges.get(1)));
         Test.removeHalfEdge(new Vertex(1,-1),new Vertex(0,0));
         assertFalse(Test.D.hasEdge(new Vertex(0,0),new Vertex(1,-1)));
 
-        assertFalse(HalfEdge.isCyclic(Test.D,Test.D.halfEdges.get(1)));
+        assertFalse(EdgeUtility.isInCycle(Test.D.halfEdges.get(1)));
 
         HalfEdge.SubdivisionBuilder Test2 = HalfEdge.SubdivisionBuilder.builder()
                 .Vertex(new Vertex(0,0))   // V0
@@ -295,8 +295,8 @@ public class SubdivisionTest {
         Test2.addHalfEdge(new Vertex(0,0),new Vertex(1,1));
         Test2.removeHalfEdge(new Vertex(0,0),new Vertex(0,1));
         assertFalse(Test2.D.hasEdge(new Vertex(0,0),new Vertex(0,1)));
-        assertTrue(HalfEdge.isCyclic(Test2.D,Test2.D.halfEdges.get(1)));
-        assertFalse(HalfEdge.isCyclic(Test2.D,Test2.D.halfEdges.get(0)));
+        assertTrue(EdgeUtility.isInCycle(Test2.D.halfEdges.get(1)));
+        assertFalse(EdgeUtility.isInCycle(Test2.D.halfEdges.get(0)));
     }
 
     @Test
@@ -405,6 +405,23 @@ public class SubdivisionTest {
         assertEquals(t1.i,t1.edges.get(0).v);
         assertEquals(t1.j,t1.edges.get(2).v);
         assertEquals(t1.k,t1.edges.get(4).v);
+    }
+
+    @Test
+    public void nonConvex() {
+        HalfEdge.SubdivisionBuilder builder = HalfEdge.SubdivisionBuilder.builder() ;
+        builder.addCycle(new Vertex(0,0),new Vertex(1,1),new Vertex(0,1),new Vertex(0,0));
+        //builder.addEdge(new Vertex(0,0),new Vertex(1,1));
+        assertTrue(builder.D.hasEdge(new Vertex(0,0),new Vertex(1,1)));
+        assertTrue(Subdivision.inEdgeBounded(builder.D.halfEdges));
+        assertTrue(Subdivision.outerEdgeBounded(builder.D.halfEdges));
+
+        builder.addCycle(new Vertex(1,1),new Vertex(2,0),new Vertex(0,0));
+        /*builder.addEdge(new Vertex(1,1),new Vertex(0,1));
+        builder.addEdge(new Vertex(0,1),new Vertex(0,0));
+        builder.addEdge(new Vertex(1,1),new Vertex(2,0));
+        builder.addEdge(new Vertex(2,0),new Vertex(0,0));
+*/
     }
 
 }
