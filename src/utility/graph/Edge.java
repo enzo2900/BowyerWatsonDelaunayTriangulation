@@ -1,5 +1,7 @@
 package utility.graph;
 
+import utility.MapPoint;
+
 import java.util.Objects;
 
 /**

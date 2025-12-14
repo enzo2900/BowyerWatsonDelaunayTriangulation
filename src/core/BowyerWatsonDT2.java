@@ -9,6 +9,8 @@ import utility.graph.Graph2DTopologyBuilder;
 import utility.graph.Vertex;
 
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Une implémentation plus simpliste que l'approche incrémentale cité dans le livre Computational Géometry.
@@ -17,17 +19,17 @@ import java.util.ArrayList;
  */
 public class BowyerWatsonDT2 {
 
-    public static Graph2DTopologyBuilder compute(ArrayList<Point> points) {
+    public static ArrayList<TriangleGraph> compute(ArrayList<Point> points) {
         var builder = Graph2DTopologyBuilder.builder();
-        builder.addEdge(new Vertex(0,1000),new Vertex(-1000,-1000))
-                .addEdge(new Vertex(-1000,-1000),new Vertex(1000,-1000))
-                .addEdge(new Vertex(1000,-1000),new Vertex(0,1000));
-
+        builder.addEdge(new Vertex(0,100),new Vertex(-100,-100))
+                .addEdge(new Vertex(-100,-100),new Vertex(100,-100))
+                .addEdge(new Vertex(100,-100),new Vertex(0,100));
+        var triangleGraphs = getTriangles(builder);
 
         for(Point point : points) {
             ArrayList<TriangleGraph> badTriangles = new ArrayList<>();
-            var triangles =getTriangles(builder);
-            for(TriangleGraph triangle : triangles) {
+            //var triangles =getTriangles(builder);
+            for(TriangleGraph triangle : triangleGraphs) {
                 if (GeometryUtility.isInsideCircleD(triangle.k.v1(),triangle.j.v1(),triangle.i.v1(),point)) {
                     badTriangles.add(triangle);
                 }
@@ -45,33 +47,52 @@ public class BowyerWatsonDT2 {
             }
             for(TriangleGraph triangle : badTriangles) {
                 removeTriangle(builder,triangle);
+                triangleGraphs.remove(triangle);
 
             }
 
             Vertex newV = new Vertex(point.x,point.y);
             for(Edge edge : edgesList) {
                 // Create a triangle
+                TriangleGraph triangleGraph = new TriangleGraph();
+                triangleGraph.i = new Edge(edge.v1(),newV);
+                triangleGraph.j = new Edge(newV,edge.v2());
+                triangleGraph.k = new Edge(edge.v2(),edge.v1());
+                triangleGraphs.add(triangleGraph);
                 addOneTriangleInside(builder,edge,newV);
 
             }
+            //builder.showGraph();
+           /* try {
+                //new CountDownLatch(3).await(3, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }*/
 
         }
-        /*var triangles = getTriangles(builder);
-        for(Triangle t : triangles) {
+        //var triangles = getTriangles(builder);
+        for(TriangleGraph t : new ArrayList<>(triangleGraphs)) {
             ArrayList<Vertex> vertices = new ArrayList<>();
             vertices.add(t.i.v1());
             vertices.add(t.j.v1());
             vertices.add(t.k.v1());
-            if(vertices.stream().anyMatch(v -> v.equals(new Vertex(0,1000))
-                    || v.equals(new Vertex(1000,-1000))
-                    || v.equals(new Vertex(-1000,-1000)))) {
-                removeTriangle(builder,t);
+            if(vertices.stream().anyMatch(v -> v.equals(new Vertex(0,100))
+                    || v.equals(new Vertex(100,-100))
+                    || v.equals(new Vertex(-100,-100)))) {
+                //removeTriangle(builder,t);
+                triangleGraphs.remove(t);
             }
-        }*/
-        builder.removeVertex(new Vertex(0,1000));
-        builder.removeVertex(new Vertex(1000,-1000));
-        builder.removeVertex(new Vertex(-1000,-1000));
-        return builder;
+        }
+        builder.removeVertex(new Vertex(0,100));
+        builder.removeVertex(new Vertex(100,-100));
+        builder.removeVertex(new Vertex(-100,-100));
+        builder.showGraph();
+        try {
+            new CountDownLatch(1).await(2,TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return triangleGraphs;
     }
 
     public static ArrayList<TriangleGraph> getTriangles(Graph2DTopologyBuilder builder) {

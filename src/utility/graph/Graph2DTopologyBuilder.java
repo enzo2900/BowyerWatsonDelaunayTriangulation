@@ -3,7 +3,12 @@ package utility.graph;
 
 import utility.*;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.util.*;
+import java.util.List;
 
 /**
  * An 2D non oriented graph builder
@@ -17,9 +22,13 @@ public class Graph2DTopologyBuilder {
 
     public void removeVertex(Vertex v) {
         var listV = verticesMap.get(v);
-        for(Vertex vertex : listV) {
-            verticesMap.get(vertex).remove(v);
-        }
+
+
+
+            for (Vertex vertex : listV) {
+                verticesMap.get(vertex).remove(v);
+            }
+
         verticesMap.remove(v);
     }
     public Vertex getFirstVertex() {
@@ -107,13 +116,43 @@ public class Graph2DTopologyBuilder {
         return cycles;
     }
 
+    public void showGraph() {
+        JFrame frame = new JFrame("Triangulation");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(500, 500);
+
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                drawGraph((Graphics2D) g);
+            }
+        };
+
+        frame.add(panel);
+        frame.setVisible(true);
+
+    }
+    private void drawGraph(Graphics2D g2) {
+        for(Vertex v : verticesMap.keySet()) {
+            Ellipse2D ellipse2D = new Ellipse2D.Double(v.x*20,v.y*20,5,5);
+            g2.draw(ellipse2D);
+            for(Vertex voisin : verticesMap.get(v)) {
+
+                Line2D lin = new Line2D.Double(v.x*20, v.y*20, voisin.x*20, voisin.y*20);
+                //g2.drawLine((int) v.x, (int) v.y, (int) voisin.x, (int) voisin.y);
+                g2.draw(lin);
+            }
+        }
+    }
+
     public Cycle transformToCycle(Edge edgeTerminating, HashMap<Vertex, Vertex> parents) {
         Cycle cycle = new Cycle();
         Vertex current = parents.get(edgeTerminating.v1());
-        Vertex head = edgeTerminating.v2();
+        Vertex head = (Vertex) edgeTerminating.v2();
 
         cycle.addToEnd(head);
-        cycle.addToEnd(edgeTerminating.v1());
+        cycle.addToEnd((Vertex) edgeTerminating.v1());
         cycle.addToEnd(current);
         Vertex next = parents.get(current);
         while (!next.equals( head) && !parents.get(next).equals(next)){

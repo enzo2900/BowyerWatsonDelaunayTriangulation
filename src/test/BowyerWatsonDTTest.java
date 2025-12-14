@@ -8,6 +8,7 @@ import utility.*;
 import utility.graph.Graph2DTopologyBuilder;
 
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,16 +84,64 @@ class BowyerWatsonDTTest {
     }
 
     @Test
-    void compute2() {
+    void compute2() throws InterruptedException {
         ArrayList<Point> points = new ArrayList<>();
         points.add(new Point(0,0));
         points.add(new Point(10,0));
         points.add(new Point(5,10));
 
         var builder = BowyerWatsonDT2.compute(points);
-        Assertions.assertEquals(3, Graph2DTopologyBuilder.numberOfVertices(builder));
-        Assertions.assertEquals(6,Graph2DTopologyBuilder.numberOfEdges(builder));
+        Assertions.assertEquals(1,builder.size());
+        //Assertions.assertEquals(3, Graph2DTopologyBuilder.numberOfVertices(builder));
+        //Assertions.assertEquals(6,Graph2DTopologyBuilder.numberOfEdges(builder));
+        //builder.showGraph();
+       // new CountDownLatch(2).await();
+    }
 
+    @Test
+    void computeComplex() throws InterruptedException {
+        ArrayList<Point> points = new ArrayList<>();
+
+        // Enveloppe convexe
+        points.add(new Point(0, 0));
+        points.add(new Point(20, 0));
+        points.add(new Point(25, 10));
+        points.add(new Point(15, 25));
+        points.add(new Point(0, 20));
+
+        // Points intérieurs
+        points.add(new Point(8, 6));
+        points.add(new Point(12, 8));
+        points.add(new Point(10, 15));
+        points.add(new Point(6, 12));
+
+        // Points presque cocycliques (tests numériques)
+        points.add(new Point(13, 13));
+        points.add(new Point(14, 12));
+        points.add(new Point(12, 14));
+
+        var result = BowyerWatsonDT2.compute(points);
+        System.out.println(result);
+        //result.showGraph();
+        //new CountDownLatch(10).await();
+    }
+
+    @Test
+    void computeCarre() throws InterruptedException {
+        ArrayList<Point> points = new ArrayList<>();
+
+        // Carré
+        points.add(new Point(0, 0));
+        points.add(new Point(10, 0));
+        points.add(new Point(10, 10));
+        points.add(new Point(0, 10));
+
+        // Point central
+        points.add(new Point(2.5, 2.5));
+        var result = BowyerWatsonDT2.compute(points);
+        Assertions.assertEquals(4,result.size());
+        //result.showGraph();
+        //new CountDownLatch(10).await();
     }
 
     @Test
