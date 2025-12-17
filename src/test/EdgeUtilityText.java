@@ -33,6 +33,32 @@ public class EdgeUtilityText {
     }
 
     @Test
+    public void getAdjacentEdges() {
+        HalfEdge.SubdivisionBuilder builder = HalfEdge.SubdivisionBuilder.builder()
+                .addEdge(new Vertex(0,0),new Vertex(1,0));
+        HalfEdge first = builder.D.getEdge(new Vertex(0,0),new Vertex(1,0));
+        var newE = EdgeUtility.connectVertex(first,new Vertex(2,0));
+        var split = EdgeUtility.createEdgeFromVertices(new Vertex(1,0),new Vertex(1,-1));
+        var lR = EdgeUtility.getLeftAndRightOf(newE.left(),split.left());
+        Assertions.assertEquals(lR.right().twin,first);
+        Assertions.assertEquals(lR.left(),newE.left());
+        split = EdgeUtility.createEdgeFromVertices(new Vertex(1,0),new Vertex(1,1));
+        lR = EdgeUtility.getLeftAndRightOf(newE.left(),split.left());
+        Assertions.assertEquals(lR.right(),newE.left());
+        Assertions.assertEquals(lR.left().twin,first);
+        var newE2 = EdgeUtility.connectVertexToBothEdge(first,newE.left(),new Vertex(1,1));
+        split = EdgeUtility.createEdgeFromVertices(new Vertex(1,0),new Vertex(1,-1));
+        lR = EdgeUtility.getLeftAndRightOf(newE.left(),split.left());
+        Assertions.assertEquals(lR.right().twin,first);
+        Assertions.assertEquals(lR.left(),newE.left());
+
+        split = EdgeUtility.createEdgeFromVertices(new Vertex(1,0),new Vertex(0,1));
+        lR = EdgeUtility.getLeftAndRightOfNoTwin(newE.left(),split.left());
+        Assertions.assertEquals(lR.right(),newE2.left());
+        Assertions.assertEquals(lR.left().twin,first);
+
+    }
+    @Test
     public void testConnectWithTwoEdges() {
         HalfEdge.SubdivisionBuilder builder = HalfEdge.SubdivisionBuilder.builder()
                 .addEdge(new Vertex(0,0),new Vertex(1,0));
@@ -45,6 +71,16 @@ public class EdgeUtilityText {
         Assertions.assertEquals(first.next.twin.v,newE3.right().v);
     }
 
+    @Test
+    public void testCreateTriangles() {
+        var edge = EdgeUtility.createEdgeFromVertices(new Vertex(0,0),new Vertex(1,0));
+        var edge2 = EdgeUtility.connectVertex(edge.left(),new Vertex(1,1));
+        var edge3 =  EdgeUtility.connectEdges(edge.left(),edge2.left());
+        var left = EdgeUtility.getLeftAndRightOf(edge3.left(),EdgeUtility.createEdgeFromVertices(edge3.left(),new Vertex(-1,1))
+                .left());
+        var edge4 = EdgeUtility.connectVertexToBothEdge(left.right(),left.left(),new Vertex(-1,1));
+        //EdgeUtility.connectEdgeToEdges()
+    }
     @Test
     public void connectingTwoCycles() {
         HalfEdge.SubdivisionBuilder builder = HalfEdge.SubdivisionBuilder.builder()

@@ -1,5 +1,7 @@
 package utility;
 
+import java.util.Objects;
+
 public class Vertex implements MapPoint {
 
     public double x,y;
@@ -21,6 +23,11 @@ public class Vertex implements MapPoint {
 
     public Vertex copy() {
         return new Vertex(x,y);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
     }
 
     @Override

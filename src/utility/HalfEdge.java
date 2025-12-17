@@ -15,7 +15,17 @@ public class HalfEdge implements MapPoint {
     public int tag;
 
 
-
+    public double magnitude() {
+        double x = twin.v.x - v.x;
+        double y = twin.v.y - v.y;
+        return Math.sqrt(x * x  + y * y);
+    }
+    public double[] normalized() {
+        double magnitude = magnitude();
+        double x = twin.v.x - v.x;
+        double y = twin.v.y - v.y;
+        return new double[] {x / magnitude,y / magnitude};
+    }
 
     public static ArrayList<HalfEdge> copyStatic(ArrayList<HalfEdge> edges,ArrayList<Face> faces
             ,ArrayList<Face> faceThatWillBeCopied,ArrayList<Vertex> vertices, ArrayList<Vertex> verticesToCopy,Subdivision D

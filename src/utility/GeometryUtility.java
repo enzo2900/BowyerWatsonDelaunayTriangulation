@@ -1,17 +1,16 @@
 package utility;
 
 
-import java.util.Map;
-
 public class GeometryUtility {
 
     public static double toTheLeftOf(MapPoint A, MapPoint B, MapPoint C) {
         return (B.getX() - A.getX()) * (C.getY() - A.getY()) - (B.getY() - A.getY()) * (C.getX() - A.getX());
     }
 
-    public static double similar(MapPoint A, MapPoint B, MapPoint C) {
+    public static double dotProduct(MapPoint A, MapPoint B, MapPoint C) {
         return (B.getX() -A.getX()) * (C.getX() - A.getX()) + (B.getY() - A.getY()) * (C.getY() - A.getY());
     }
+
 
     public static boolean isInsideCircleD(MapPoint A, MapPoint B, MapPoint C , MapPoint D) {
         double orientation = (B.getX() - A.getX()) * (C.getY() - A.getY()) -

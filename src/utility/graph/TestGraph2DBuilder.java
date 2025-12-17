@@ -2,6 +2,7 @@ package utility.graph;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import utility.EdgeUtility;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -79,6 +80,21 @@ public class TestGraph2DBuilder {
         Assertions.assertEquals(cycle2Expected,cycle2);
     }
 
+    @Test
+    public void getDistinctTrianglesTest() {
+        var builder = Graph2DTopologyBuilder.builder()
+                .addEdge(new Vertex(0,0),new Vertex(1,0))
+                .addEdge(new Vertex(1,0),new Vertex(1,1))
+                .addEdge(new Vertex(1,1),new Vertex(0,0))
+                .addEdge(new Vertex(0,0),new Vertex(-1,1))
+                .addEdge(new Vertex(-1,1),new Vertex(-1,0))
+                .addEdge(new Vertex(-1,0),new Vertex(0,0))
+                .addEdge(new Vertex(-1,1),new Vertex(1,1));
+
+        var list = builder.getAllCyclesDistinct();
+        Assertions.assertEquals(3,list.size());
+
+    }
     @Test
     public void buildVeryComplexGraph() {
         var builder = Graph2DTopologyBuilder.builder()

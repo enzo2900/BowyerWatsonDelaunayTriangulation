@@ -100,6 +100,43 @@ public class Graph2DTopologyBuilder {
         }
     }
 
+    public List<Cycle> getAllCyclesDistinct() {
+        ArrayList<Cycle> cycles = new ArrayList<>();
+        HashSet<Vertex> visited = new HashSet<>();
+        for(Vertex v : verticesMap.keySet()) {
+
+            if(!visited.contains(v)) {
+                HashMap<Vertex,Vertex> parents = new HashMap<>();
+                Edge e = getCycleRecFor(v,v,v,parents,new HashSet<>());
+                if(e== null) {
+                    continue;
+                }
+                Cycle c = transformToCycle(e,parents);
+                cycles.add(c);
+                visited.addAll(c.cyclePath);
+            }
+        }
+        return cycles;
+
+    }
+
+    public Edge getCycleRecFor(Vertex original,Vertex v, Vertex pere, HashMap<Vertex,Vertex> parents, HashSet<Vertex> visited) {
+        visited.add(v);
+        for (Vertex voisin : getEdges(this,v)) {
+            if(!visited.contains(voisin)) {
+                parents.put(voisin,v);
+                Edge e = getCycleRecFor(original,voisin,v,parents,visited);
+                if(e != null) {
+                    return e;
+                }
+            } else if ((voisin.equals(original) && !voisin.equals(pere))) {
+                Edge edge = new Edge(v,voisin);
+                return edge;
+
+            }
+        }
+        return null;
+    }
 
     public List<Cycle> getCyclesListRec(Vertex v) {
         HashMap<Vertex,Vertex> parents = new HashMap<>();

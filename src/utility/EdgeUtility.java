@@ -36,7 +36,32 @@ public class EdgeUtility {
         e2Next.prev = edgeTwin;
         eNext.prev = edge;
 
+        return new Couple<>(edge,edgeTwin);
+    }
 
+    public static Couple<HalfEdge,HalfEdge> connectEdgesCW(HalfEdge e, HalfEdge e2) {
+
+        HalfEdge edge = new HalfEdge();
+        HalfEdge edgeTwin = new HalfEdge();
+        edge.v = e2.v;
+        edgeTwin.v = e.twin.v;
+        edge.twin = edgeTwin;
+        edgeTwin.twin = edge;
+        HalfEdge eNext = e.twin;
+        HalfEdge ePrev = e2.twin;
+
+        HalfEdge e2Next = e2;
+        HalfEdge e2Prev = e;
+
+        edge.next = eNext;
+        edge.prev = ePrev;
+        edgeTwin.next = e2Next;
+        edgeTwin.prev = e2Prev;
+
+        e2Prev.next = edgeTwin;
+        ePrev.next = edge;
+        e2Next.prev = edgeTwin;
+        eNext.prev = edge;
 
         return new Couple<>(edge,edgeTwin);
     }
@@ -60,6 +85,8 @@ public class EdgeUtility {
         previous.prev = twinPrevious;
         twinPrevious.next = previous;
         twinPrevious.prev = previous;
+        vPrevious.incidentEdge = previous;
+        vPTwin.incidentEdge = twinPrevious;
 
         return new Couple<>(previous,twinPrevious);
 
@@ -183,16 +210,16 @@ public class EdgeUtility {
     public static Couple<HalfEdge,HalfEdge> connectEdgeToEdgesCW(HalfEdge e, HalfEdge eBase,HalfEdge eBPrev) {
         HalfEdge edge = new HalfEdge();
         HalfEdge edgeTwin = new HalfEdge();
-        edge.v = e.twin.v;
-        edgeTwin.v = eBase.v;
+        edge.v = eBase.v;
+        edgeTwin.v = e.twin.v;
         edge.twin = edgeTwin;
         edgeTwin.twin = edge;
 
-        HalfEdge eNext = eBase.twin;
-        HalfEdge ePrev = e;
+        HalfEdge eNext = e.twin;
+        HalfEdge ePrev = eBPrev.twin;
 
-        HalfEdge eTNext = e.twin;
-        HalfEdge eTPrev = eBPrev.twin;
+        HalfEdge eTNext = eBase;
+        HalfEdge eTPrev = e;
 
         edge.next = eNext;
         edge.prev = ePrev;
@@ -202,9 +229,37 @@ public class EdgeUtility {
         eTPrev.next = edgeTwin;
         ePrev.next = edge;
         eTNext.prev = edgeTwin;
-        eNext.next = edge;
+        eNext.prev = edge;
 
         return new Couple<>(edge,edgeTwin);
+    }
+    public static Couple<HalfEdge,HalfEdge> connectEdgeToEdges2(HalfEdge e, HalfEdge eRight,HalfEdge eLeft) {
+        HalfEdge edge = new HalfEdge();
+        HalfEdge edgeTwin = new HalfEdge();
+        edge.v = e.twin.v;
+        edgeTwin.v = eRight.v;
+        edge.twin = edgeTwin;
+        edgeTwin.twin = edge;
+        HalfEdge eNext = eRight;
+        HalfEdge ePrev = e;
+
+        HalfEdge eTNext = e.twin;
+        HalfEdge eTPrev = eLeft;
+
+        edge.next = eNext;
+        edge.prev = ePrev;
+        edgeTwin.prev = eTPrev;
+        edgeTwin.next = eTNext;
+
+        eRight.prev = edge;
+        eLeft.next = edgeTwin;
+        eTPrev.next = edgeTwin;
+        eNext.prev = edge;
+        ePrev.next = edge;
+        eTNext.prev = edgeTwin;
+        return new Couple<>(edge,edgeTwin);
+
+
     }
 
     public static Couple<HalfEdge,HalfEdge> connectEdgeToEdges(HalfEdge e, HalfEdge eBase,HalfEdge eBPrev) {
@@ -300,11 +355,59 @@ public class EdgeUtility {
         return new Couple<>(e1,eTwin);
 
     }
+    public static Couple<HalfEdge,HalfEdge> connectVertexCW(HalfEdge e, Vertex v) {
+        HalfEdge e1 = new HalfEdge();
+        HalfEdge eTwin = new HalfEdge();
+        e1.v = v;
+        v.incidentEdge = e1;
+        eTwin.v = e.twin.v;
+        eTwin.twin = e1;
+        e1.twin = eTwin;
+        HalfEdge eTwinNext= e1;
+        HalfEdge eTwinPrev = e;
+        HalfEdge eNext = e.twin;
+        HalfEdge ePrev = eTwin;
 
+        e1.prev = ePrev;
+        e1.next = eNext;
+        eTwin.next = eTwinNext;
+        eTwin.prev = eTwinPrev;
+
+        e.next = eTwin;
+        e.twin.prev = e1;
+        return new Couple<>(e1,eTwin);
+
+    }
+
+    public static Couple<HalfEdge,HalfEdge> connectVertexToBothEdge2(HalfEdge e, HalfEdge e2, Vertex v) {
+        HalfEdge e1 = new HalfEdge();
+        HalfEdge eTwin = new HalfEdge();
+        e1.v = e2.v;
+
+        eTwin.v = v;
+        eTwin.twin = e1;
+        e1.twin = eTwin;
+        v.incidentEdge = e1;
+
+        HalfEdge eNext = eTwin;
+        HalfEdge ePrev = e;
+        HalfEdge eTNext = e2;
+        HalfEdge eTPrev = e1;
+
+        e1.next = eNext;
+        e1.prev = ePrev;
+        eTwin.next = eTNext;
+        eTwin.prev = eTPrev;
+
+        e.next = e1;
+        e2.prev = eTwin;
+        return new Couple<>(e1,eTwin);
+    }
     /**
      * Connect a Vertex to two edges connected.
      * The attachment depends on the position in space of the vertex compared to the two edges.
      * The edges are not attached to a face.
+     * Create an adjacent edge to e2.origin
      * @param e The first edge to attach to
      * @param e2 The second edge to attach to
      * @param v The vertex to connect
@@ -313,11 +416,7 @@ public class EdgeUtility {
     public static Couple<HalfEdge,HalfEdge> connectVertexToBothEdge(HalfEdge e, HalfEdge e2, Vertex v) {
         HalfEdge e1 = new HalfEdge();
         HalfEdge eTwin = new HalfEdge();
-        if(e.twin.v.equals(e2.v)) {
-            e1.v = e.twin.v;
-        } else {
-            e1.v = e.v;
-        }
+        e1.v = e2.v;
 
         eTwin.v = v;
         eTwin.twin = e1;
@@ -338,7 +437,7 @@ public class EdgeUtility {
 
             e.next = e1;
             e2.prev = eTwin;
-        } else if ( GeometryUtility.toTheLeftOf(e.v,e.twin.v,v) > 0) {
+        } else if ( GeometryUtility.toTheLeftOf(e2.v,e2.twin.v,v) > 0) {
             // Second normal edge
             HalfEdge eNext = eTwin;
             HalfEdge ePrev = e2.twin;
@@ -366,6 +465,33 @@ public class EdgeUtility {
             e.twin.prev = eTwin;
             e2.twin.next = e1;
         }
+        return new Couple<>(e1,eTwin);
+    }
+
+    public static Couple<HalfEdge,HalfEdge> connectVertexToBothEdgeCW(HalfEdge e, HalfEdge e2, Vertex v) {
+        HalfEdge e1 = new HalfEdge();
+        HalfEdge eTwin = new HalfEdge();
+        e1.v = v;
+
+        eTwin.v = e2.v;
+        eTwin.twin = e1;
+        e1.twin = eTwin;
+        v.incidentEdge = e1;
+
+
+            // Connect with the twins
+            HalfEdge eNext = e2;
+            HalfEdge ePrev = eTwin;
+            HalfEdge eTNext = e1;
+            HalfEdge eTPrev = e;
+            e1.next = eNext;
+            e1.prev = ePrev;
+            eTwin.next = eTNext;
+            eTwin.prev = eTPrev;
+
+            e.next = eTwin;
+            e2.prev = e1;
+
         return new Couple<>(e1,eTwin);
     }
 
@@ -434,7 +560,30 @@ public class EdgeUtility {
         return current;
 
     }
+    public static ArrayList<HalfEdge> getAdjacentsEdgesSameDir(HalfEdge edge) {
+        ArrayList<HalfEdge> edges = new ArrayList<>();
+        ArrayList<HalfEdge> visited = new ArrayList<>();
+        HalfEdge first =edge;
 
+        visited.add(first);
+        visited.add(first.twin);
+        edges.add(first);
+        HalfEdge current = first.twin.next;
+        while (current != first) {
+            if(!visited.contains(current) && ! visited.contains(current.twin)) {
+                visited.add(current);
+                visited.add(current.twin);
+
+                edges.add(current);
+
+
+            }
+
+
+            current = current.twin.next;
+        }
+        return edges;
+    }
     public static ArrayList<HalfEdge> getAdjacentsEdges(HalfEdge edge) {
         ArrayList<HalfEdge> edges = new ArrayList<>();
         ArrayList<HalfEdge> visited = new ArrayList<>();
@@ -458,25 +607,52 @@ public class EdgeUtility {
         return edges;
     }
 
+    /**
+     * Get the left and right of edge that are closest to toCompare (right and left)
+     * The edge compared are adjacents to edge.origin.
+     * @param edge
+     * @param toCompare
+     * @return
+     */
     public static Couple<HalfEdge,HalfEdge> getLeftAndRightOf(HalfEdge edge, HalfEdge toCompare) {
         var list = getAdjacentsEdges(edge);
+        return getLeftAndRightOf(toCompare,list);
+
+    }
+    public static Couple<HalfEdge,HalfEdge> getLeftAndRightOfNoTwin(HalfEdge edge, HalfEdge toCompare) {
+        var list = getAdjacentsEdgesSameDir(edge);
+        return getLeftAndRightOf(toCompare,list);
+
+    }
+    public static Couple<HalfEdge,HalfEdge> getLeftAndRightOf( HalfEdge toCompare,List<HalfEdge> list) {
         ArrayList<Double> angles = new ArrayList<>();
         PriorityQueue<Couple<Double,HalfEdge>> queue = new PriorityQueue<>((o1,o2) -> -Double.compare(o1.left(),o2.left()));
-
+        double[] toCompareNormalized = toCompare.normalized();
         for(HalfEdge edge1 : list) {
             if(edge1 == toCompare)continue;
-            double dotProduct = GeometryUtility.similar(toCompare.v,toCompare.twin.v,edge1.twin.v);
-            dotProduct = dotProduct > 0 ? dotProduct >= 1 ? dotProduct+1 *dotProduct+1 : 2 : 1;
-
-            queue.offer(new Couple<>(GeometryUtility.toTheLeftOf(toCompare.v,toCompare.twin.v,edge1.twin.v) * dotProduct,edge1));
+            double[] normalized = edge1.normalized();
+            double cross = GeometryUtility.toTheLeftOf(new Point(0,0),new Point(toCompareNormalized[0],toCompareNormalized[1])
+                    ,new Point(normalized[0],normalized[1]));
+            double dot = GeometryUtility.dotProduct(new Point(0,0),new Point(toCompareNormalized[0],toCompareNormalized[1])
+                    ,new Point(normalized[0],normalized[1]));
+            //double dotProduct = GeometryUtility.dotProduct(toCompare.v,toCompare.twin.v,edge1.twin.v);
+            //dotProduct = dotProduct > 0 ? dotProduct >= 1 ? dotProduct+1 *dotProduct+1 : 2 : 1;
+            queue.offer(new Couple<Double,HalfEdge>((cross * (1+dot)),edge1));
+            //queue.offer(new Couple<>(GeometryUtility.toTheLeftOf(toCompare.v,toCompare.twin.v,edge1.twin.v) * dotProduct,edge1));
 
         }
         HalfEdge left = queue.poll().right();
-        for (int i = 0 ; i < queue.size() -1; i++) {
+        int iterationsCount = queue.size() -1;
+        for (int i = 0 ; i < iterationsCount; i++) {
             queue.poll();
         }
+        HalfEdge right = null;
+        if(queue.isEmpty()) {
+            right = left.twin;
+        } else {
+             right = queue.peek().right();
+        }
 
-        HalfEdge right = queue.peek().right();
 
         return new Couple<>(left,right);
 
