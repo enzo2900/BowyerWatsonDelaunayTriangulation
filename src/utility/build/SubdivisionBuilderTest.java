@@ -95,11 +95,93 @@ class SubdivisionBuilderTest {
         assertTrue(Subdivision.inEdgeBounded(builder.faces.get(f4)));
 
         p1.clear();
-        builder.buildVertex(new Vertex(0,0),new Vertex(0,2));
-        builder.buildVertex(new Vertex(0,2),new Vertex(1,1));
+        p1.add(new Vertex(0,0));
+        p1.add(new Vertex(0,2));
+        p1.add(new Vertex(1,1));
+        p1.add(new Vertex(0,0));
+        var f5 = builder.buildPolygon(p1);
+        Assertions.assertEquals(6,builder.faces.get(f3).size());
+        assertTrue(Subdivision.inEdgeBounded(builder.faces.get(f4)));
+        /*builder.buildVertex(new Vertex(0,0),new Vertex(0,2));
+        builder.buildVertex(new Vertex(0,2),new Vertex(1,1));*/
+        var triangles = builder.getTriangles();
+        assertEquals(5,triangles.size());
     }
 
     public void buildTriangulation() {
+
+    }
+
+    @Test
+    public void isCWPolygon() {
+        ArrayList<Vertex> polygon = new ArrayList<>();
+        polygon.add(new Vertex(0,0));
+        polygon.add(new Vertex(0,2));
+        polygon.add(new Vertex(1,1));
+        polygon.add(new Vertex(0,0));
+        assertTrue(SubdivisionBuilder.isCWPolygon(polygon));
+
+        polygon.clear();
+        polygon.add(new Vertex(0,0));
+        polygon.add(new Vertex(-1,1));
+        polygon.add(new Vertex(3,3));
+        polygon.add(new Vertex(1,1));
+        polygon.add(new Vertex(0,0));
+        assertTrue(SubdivisionBuilder.isCWPolygon(polygon));
+
+        polygon.clear();
+
+        polygon.add(new Vertex(0,0));
+        polygon.add(new Vertex(3,1));
+        polygon.add(new Vertex(1,2));
+        polygon.add(new Vertex(0,0));
+
+        assertFalse(SubdivisionBuilder.isCWPolygon(polygon));
+        var reversedPolygon = polygon.reversed();
+        assertTrue(SubdivisionBuilder.isCWPolygon(reversedPolygon));
+    }
+
+    @Test
+    public void splitFace() {
+        var builder = SubdivisionBuilder.builder();
+        ArrayList<Vertex> p= new ArrayList<>();
+        p.add(new Vertex(0,0));
+        p.add(new Vertex(1,0));
+        p.add(new Vertex(1,1));
+        p.add(new Vertex(0,1));
+        p.add(new Vertex(0,0));
+        var f = builder.buildPolygon(p);
+        assertTrue(Subdivision.inEdgeBounded(builder.faces.get(f)));
+        var list = builder.faces.get(f);
+
+        var edges = builder.splitFace(f,list.get(0),list.get(4));
+        assertEquals(edges.left().v,new Vertex(1,1));
+        assertEquals(edges.left().twin.v,new Vertex(0,0));
+        assertEquals(2,builder.faces.keySet().size());
+    }
+
+    @Test
+    public void mergeFace() {
+        var builder = SubdivisionBuilder.builder();
+        ArrayList<Vertex> p= new ArrayList<>();
+        p.add(new Vertex(0,0));
+        p.add(new Vertex(1,0));
+        p.add(new Vertex(1,1));
+        p.add(new Vertex(0,0));
+
+        var f = builder.buildPolygon(p);
+
+        p.clear();
+        p.add(new Vertex(0,0));
+        p.add(new Vertex(1,1));
+        p.add(new Vertex(0,1));
+        p.add(new Vertex(0,0));
+
+        var f2 = builder.buildPolygon(p);
+        var list = builder.faces.get(f2);
+        var newF = builder.mergeFaces(f,f2,list.get(0),list.get(1));
+
+        assertTrue(Subdivision.inEdgeBounded(builder.faces.get(newF)));
 
     }
 }

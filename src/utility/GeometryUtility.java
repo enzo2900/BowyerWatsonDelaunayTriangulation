@@ -4,11 +4,27 @@ package utility;
 public class GeometryUtility {
 
     public static double toTheLeftOf(MapPoint A, MapPoint B, MapPoint C) {
+        //double[] abN = normalized(A,B);
+        //double[] acN = normalized(A,C);
+        //return (abN[0] * acN[1] - abN[1] * acN[0]);
         return (B.getX() - A.getX()) * (C.getY() - A.getY()) - (B.getY() - A.getY()) * (C.getX() - A.getX());
     }
 
     public static double dotProduct(MapPoint A, MapPoint B, MapPoint C) {
         return (B.getX() -A.getX()) * (C.getX() - A.getX()) + (B.getY() - A.getY()) * (C.getY() - A.getY());
+    }
+
+    public static double magnitude(MapPoint A, MapPoint B) {
+
+        double x = B.getX() - A.getX();
+        double y = B.getY() - A.getY();
+        return Math.sqrt(x * x  + y * y);
+    }
+    public static double[] normalized(MapPoint A, MapPoint B) {
+        double magnitude = magnitude(A,B);
+        double x = B.getX() - A.getX();
+        double y = B.getY() - A.getY();
+        return new double[] {x / magnitude,y / magnitude};
     }
 
 

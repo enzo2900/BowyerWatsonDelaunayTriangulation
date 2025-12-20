@@ -156,7 +156,7 @@ public class Graph2DTopologyBuilder {
     public void showGraph() {
         JFrame frame = new JFrame("Triangulation");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 500);
+        frame.setSize(1000, 1000);
 
         JPanel panel = new JPanel() {
             @Override
@@ -172,11 +172,12 @@ public class Graph2DTopologyBuilder {
     }
     private void drawGraph(Graphics2D g2) {
         for(Vertex v : verticesMap.keySet()) {
-            Ellipse2D ellipse2D = new Ellipse2D.Double(v.x*20,v.y*20,5,5);
+            int growFactor = 15;
+            Ellipse2D ellipse2D = new Ellipse2D.Double(5+v.x* growFactor,5+v.y* growFactor,5,5);
             g2.draw(ellipse2D);
             for(Vertex voisin : verticesMap.get(v)) {
 
-                Line2D lin = new Line2D.Double(v.x*20, v.y*20, voisin.x*20, voisin.y*20);
+                Line2D lin = new Line2D.Double(5+v.x* growFactor, 5+v.y* growFactor, 5+voisin.x* growFactor, 5+voisin.y* growFactor);
                 //g2.drawLine((int) v.x, (int) v.y, (int) voisin.x, (int) voisin.y);
                 g2.draw(lin);
             }

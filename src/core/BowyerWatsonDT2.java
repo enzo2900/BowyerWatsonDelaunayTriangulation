@@ -21,9 +21,37 @@ public class BowyerWatsonDT2 {
 
     public static ArrayList<TriangleGraph> compute(ArrayList<Point> points) {
         var builder = Graph2DTopologyBuilder.builder();
-        builder.addEdge(new Vertex(0,100),new Vertex(-100,-100))
-                .addEdge(new Vertex(-100,-100),new Vertex(100,-100))
-                .addEdge(new Vertex(100,-100),new Vertex(0,100));
+        double yMax = Double.MIN_VALUE;
+        double yMin = Double.MAX_VALUE;
+        double xMax = Double.MIN_VALUE;
+        double xMin = Double.MAX_VALUE;
+        for(Point p : points) {
+            if(p.x >  xMax) {
+                xMax = p.x;
+            }
+            if(p.x < xMin) {
+                xMin = p.x;
+            }
+            if(p.y > yMax) {
+                yMax = p.y;
+            }
+            if(p.y < yMin) {
+                yMin = p.y;
+            }
+        }
+        if(xMin == 0) {
+            xMin = -10;
+        }
+        if(yMin == 0) {
+            yMin = -10;
+        }
+        xMax *=3;
+        xMin =Math.abs(xMin)*-3;
+        yMax *=3;
+        yMin = Math.abs(yMin)*-3;
+        builder.addEdge(new Vertex(0,yMax),new Vertex(xMin,yMin))
+                .addEdge(new Vertex(xMin,yMin),new Vertex(xMax,yMin))
+                .addEdge(new Vertex(xMax,yMin),new Vertex(0,yMax));
         var triangleGraphs = getTriangles(builder);
 
         for(Point point : points) {
@@ -76,22 +104,26 @@ public class BowyerWatsonDT2 {
             vertices.add(t.i.v1());
             vertices.add(t.j.v1());
             vertices.add(t.k.v1());
-            if(vertices.stream().anyMatch(v -> v.equals(new Vertex(0,100))
-                    || v.equals(new Vertex(100,-100))
-                    || v.equals(new Vertex(-100,-100)))) {
+            double finalYMin = yMin;
+            double finalYMax = yMax;
+            double finalXMax = xMax;
+            double finalXMin = xMin;
+            if(vertices.stream().anyMatch(v -> v.equals(new Vertex(0, finalYMax))
+                    || v.equals(new Vertex(finalXMax, finalYMin))
+                    || v.equals(new Vertex(finalXMin, finalYMin)))) {
                 //removeTriangle(builder,t);
                 triangleGraphs.remove(t);
             }
         }
-        builder.removeVertex(new Vertex(0,100));
-        builder.removeVertex(new Vertex(100,-100));
-        builder.removeVertex(new Vertex(-100,-100));
-        builder.showGraph();
+        builder.removeVertex(new Vertex(0,yMax));
+        builder.removeVertex(new Vertex(xMax,yMin));
+        builder.removeVertex(new Vertex(xMin,yMin));
+        /*builder.showGraph();
         try {
             new CountDownLatch(1).await(2,TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }
+        }*/
         return triangleGraphs;
     }
 
